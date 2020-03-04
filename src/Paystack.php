@@ -16,17 +16,15 @@ use Illuminate\Support\Facades\Config;
 use Unicodeveloper\Paystack\Exceptions\IsNullException;
 use Unicodeveloper\Paystack\Exceptions\PaymentVerificationFailedException;
 
-class Paystack
+use Unicodeveloper\Paystack\Traits\Transfer;
+
+class Paystack implements Definition
 {
     /**
-     * Transaction Verification Successful
+     * Add Traits
      */
-    const VS = 'Verification successful';
+    use Transfer;
 
-    /**
-     *  Invalid Transaction reference
-     */
-    const ITF = "Invalid transaction reference";
 
     /**
      * Issue Secret Key from your Paystack Dashboard
@@ -57,6 +55,7 @@ class Paystack
      * @var string
      */
     protected $authorizationUrl;
+
 
     public function __construct()
     {
@@ -153,7 +152,7 @@ class Paystack
      * @return Paystack
      * @throws IsNullException
      */
-    private function setHttpResponse($relativeUrl, $method, $body = [])
+    private function setHttpResponse($relativeUrl, $method, $body = [], $query = [])
     {
         if (is_null($method)) {
             throw new IsNullException("Empty method not allowed");
@@ -161,7 +160,7 @@ class Paystack
 
         $this->response = $this->client->{strtolower($method)}(
             $this->baseUrl . $relativeUrl,
-            ["body" => json_encode($body)]
+            ["body" => json_encode($body ?? []), "query" => json_encode($query)]
         );
 
         return $this;
